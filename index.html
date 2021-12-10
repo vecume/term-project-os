@@ -200,8 +200,11 @@
       API.ipcOn("job:create", (data) => {
         document.querySelector('#create-job-modal .btn-close').click()
         elSubmitBtn.querySelector("span").classList.add("d-none");
-        data && items.push(data)
-        data && renderItems();
+        
+        if(data && !items.find(x => x.id === data.id)) {
+          items.push(data);
+          renderItems();
+        }
       })
 
       API.ipcOn("job:delete", (data) => {
