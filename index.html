@@ -46,6 +46,9 @@
                 <a class="nav-link" href="#">Add resume</a>
               </li>
             </ul>
+            <form id="search-form" class="ms-auto">
+              <input style="max-width: 200px;" type="search" placeholder="Search..." class="form-control"/>
+            </form>
           </div>
         </div>
       </nav>
@@ -138,7 +141,10 @@
                   />
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="submit" class="btn btn-primary" id="btn-submit">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Submit
+              </button>
             </form>
           </div>
         </div>
@@ -151,16 +157,36 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      const elForm = document.querySelector("#create-job-form");
+      const elJobForm = document.querySelector("#create-job-form");
+      const elSearchForm = document.querySelector("#search-form");
+      const elSubmitBtn = document.querySelector("#btn-submit");
 
-      elForm.addEventListener("submit", (evt) => {
+      elSearchForm.addEventListener("submit", (evt) => {
+        evt.preventDefault()
+
+        API.ipcSend("job:getAll", {title: elSearchForm.querySelector("input").value})
+      })
+
+      elJobForm.addEventListener("submit", (evt) => {
         evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
         data.salary = parseInt(data.salary) || 0
         data.experience = parseInt(data.experience) || 0
       
         API.ipcSend('job:create', data);
+        elSubmitBtn.firstElementChild.classList.remove("d-none")
       });
+
+      API.ipcOn("job:create", (data) => {
+        new bootstrap.Modal(document.querySelector('#create-job-modal')).hide()
+        elSubmitBtn.classList.add("d-none")
+      })
+
+      API.ipcOn("job:getAll", (data) => {
+        console.log(data)
+      })
+
+      API.ipcSend("job:getAll", {title: ""})
     </script>
   </body>
 </html>

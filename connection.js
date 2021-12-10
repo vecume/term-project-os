@@ -2,9 +2,11 @@ const net = require('net');
 
 const client = new net.Socket();
 
+const ip = '152.70.249.195'
+const ipTemp = '192.168.198.127'
 
 function connection(method, data, cb = function(data, err){}) {
-  client.connect(8080, '152.70.249.195', function() {
+  client.connect(8080, ipTemp, function() {
     console.log('Connected');
     client.write(JSON.stringify({
       method,
@@ -13,10 +15,13 @@ function connection(method, data, cb = function(data, err){}) {
   });
   
   client.on('data', function(data) {
-    // console.log('Received: ' + data);
     try {
       const json = JSON.parse(data)
-      cb(json)
+      if(json.ok) {
+        cb(null, new Error("Something went wrong!"))
+      } else {
+        cb(json)
+      }
     } catch (error) {
       cb(null, error)
     }

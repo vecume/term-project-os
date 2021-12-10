@@ -1,10 +1,12 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const connection = require('./connection')
 
-function createWindow () {
-  const win = new BrowserWindow({
-    width: 800,
+let mainWindow;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1200,
     height: 600,
     webPreferences: {
       contextIsolation: true,
@@ -12,15 +14,27 @@ function createWindow () {
     }
   })
 
-  win.loadFile('index.html')
+  mainWindow.loadFile('index.html')
 }
 
-ipcMain.on("get:jobs", () => {
-  console.log("getting jobs")
+ipcMain.on("job:getAll", (e, data) => {
+  connection("read_jobs", JSON.stringify(data), (res,err) => {
+    if(err) {
+      dialog.showErrorBox("Error", err.toString())
+    } else {
+      mainWindow.webContents.send('job:getAll', res);
+    }
+  })
 })
 
 ipcMain.on("job:create", (e, data) => {
-  connection("create_job", JSON.stringify(data))
+  connection("create_job", JSON.stringify(data), (res, err) => {
+    if(err) {
+      dialog.showErrorBox("Error", err.toString())
+    } else {
+      mainWindow.webContents.send('job:create', res);
+    }
+  })
 })
 
 
