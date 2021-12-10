@@ -14,6 +14,9 @@ function createWindow() {
     }
   })
 
+  mainWindow.setMenuBarVisibility(false)
+  mainWindow.setTitle("JOBS")
+
   mainWindow.loadFile('index.html')
 }
 

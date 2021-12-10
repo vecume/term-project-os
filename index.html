@@ -202,7 +202,7 @@
         elSubmitBtn.querySelector("span").classList.add("d-none");
         
         if(data && !items.find(x => x.id === data.id)) {
-          items.push(data);
+          items.push(data)
           renderItems();
         }
       })
