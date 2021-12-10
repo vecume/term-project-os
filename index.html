@@ -190,11 +190,23 @@
         elSubmitBtn.querySelector("span").classList.remove("d-none")
       });
 
+      elItemsWrapper.addEventListener("click", (evt) => {
+        if(evt.target.matches(".js-item-delete")) {
+          const id = parseInt(evt.target.dataset.id) || 0;
+          API.ipcSend('job:delete', {id});
+        }
+      })
+
       API.ipcOn("job:create", (data) => {
         document.querySelector('#create-job-modal .btn-close').click()
         elSubmitBtn.querySelector("span").classList.add("d-none");
         data && items.push(data)
         data && renderItems();
+      })
+
+      API.ipcOn("job:delete", (data) => {
+        items = items.filter(x => x.id !== data.id)
+        renderItems();
       })
 
       API.ipcSend("job:getAll", {title: ""})
@@ -234,6 +246,8 @@
               <h6 class="card-subtitle mb-2 text-muted">${data.salary}, ${data.location}, ${data.company}</h6>
               <h6 class="card-subtitle mb-2 text-muted">Experience: ${data.experience}</h6>
               <p class="card-text">${data.description}</p>
+
+              <button type="button" class="btn btn-danger w-100 btn-sm js-item-delete" data-id="${data.id}">Delete</button>
             </div>
           </div>
         </div>

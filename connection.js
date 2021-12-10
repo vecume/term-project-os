@@ -31,8 +31,4 @@ function connection(method, data, cb = function(data, err){}) {
   
 }
 
-connection("read_job", {id: 7}, (data) => {
-  console.log(data);
-})
-
 module.exports = connection

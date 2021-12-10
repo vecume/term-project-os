@@ -27,6 +27,16 @@ ipcMain.on("job:getAll", (e, data) => {
   })
 })
 
+ipcMain.on("job:delete", (e, data) => {
+  connection("delete_job", data, (res, err) => {
+    if(err) {
+      dialog.showErrorBox("Error", err.toString())
+    } else {
+      mainWindow.webContents.send('job:delete', res);
+    }
+  })
+})
+
 ipcMain.on("job:create", (e, data) => {
   connection("create_job", data, (res, err) => {
     if(err) {
