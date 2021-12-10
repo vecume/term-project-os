@@ -14,6 +14,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 contextBridge.exposeInMainWorld("API", {
     ipcSend: (...args) => ipcRenderer.send(...args),
-
+    ipcOnce: (key, handler) => ipcRenderer.once(key, (event, ...args) => handler(...args)),
     ipcOn: (key, handler) => ipcRenderer.on(key, (event, ...args) => handler(...args))
 });

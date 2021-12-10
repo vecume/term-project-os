@@ -8,6 +8,7 @@ const ipTemp = '192.168.198.127'
 function connection(method, data, cb = function(data, err){}) {
   client.connect(8080, ipTemp, function() {
     console.log('Connected');
+
     client.write(JSON.stringify({
       method,
       data
@@ -29,5 +30,9 @@ function connection(method, data, cb = function(data, err){}) {
   });
   
 }
+
+connection("read_job", {id: 7}, (data) => {
+  console.log(data);
+})
 
 module.exports = connection

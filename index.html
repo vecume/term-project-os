@@ -12,7 +12,7 @@
   </head>
   <body>
     <header>
-      <nav class="navbar navbar-expand-md navbar-light bg-light">
+      <nav class="navbar navbar-expand-sm navbar-light bg-light">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">JOBS</a>
           <button
@@ -28,12 +28,12 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="#">Jobs</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#">Resumes</a>
-              </li>
+              </li> -->
               <li class="nav-item">
                 <a
                   class="nav-link"
@@ -43,7 +43,7 @@
                 >
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Add resume</a>
+                <a class="nav-link" href="#create-job-modal" data-bs-toggle="modal">Create resume</a>
               </li>
             </ul>
             <form id="search-form" class="ms-auto">
@@ -54,7 +54,15 @@
       </nav>
     </header>
 
-    <main></main>
+    <main>
+      <section class="my-3">
+        <div class="container-fluid">
+          <div id="main-items" class="row">
+
+          </div>
+        </div>
+      </section>
+    </main>
 
     <div
       class="modal fade"
@@ -65,7 +73,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Crete JOB</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Create</h5>
             <button
               type="button"
               class="btn-close"
@@ -141,7 +149,7 @@
                   />
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary" id="btn-submit">
+              <button type="submit" class="btn btn-primary w-100" id="btn-submit">
                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 Submit
               </button>
@@ -160,11 +168,16 @@
       const elJobForm = document.querySelector("#create-job-form");
       const elSearchForm = document.querySelector("#search-form");
       const elSubmitBtn = document.querySelector("#btn-submit");
+      const elItemsWrapper = document.querySelector("#main-items")
+      var items = []
 
       elSearchForm.addEventListener("submit", (evt) => {
         evt.preventDefault()
+        const elInput = elSearchForm.querySelector("input");
 
-        API.ipcSend("job:getAll", {title: elSearchForm.querySelector("input").value})
+        API.ipcSend("job:getAll", {title: elInput.value});
+        syncJobs();
+        elInput.value = ""
       })
 
       elJobForm.addEventListener("submit", (evt) => {
@@ -174,19 +187,58 @@
         data.experience = parseInt(data.experience) || 0
       
         API.ipcSend('job:create', data);
-        elSubmitBtn.firstElementChild.classList.remove("d-none")
+        elSubmitBtn.querySelector("span").classList.remove("d-none")
       });
 
       API.ipcOn("job:create", (data) => {
-        new bootstrap.Modal(document.querySelector('#create-job-modal')).hide()
-        elSubmitBtn.classList.add("d-none")
-      })
-
-      API.ipcOn("job:getAll", (data) => {
-        console.log(data)
+        document.querySelector('#create-job-modal .btn-close').click()
+        elSubmitBtn.querySelector("span").classList.add("d-none");
+        data && items.push(data)
+        data && renderItems();
       })
 
       API.ipcSend("job:getAll", {title: ""})
+
+      function syncJobs() {
+        API.ipcOnce("job:getAll", (data) => {
+          items = data || [];
+          renderItems()
+        })
+      }
+
+      syncJobs()
+
+      function renderItems() {
+        let html = "";
+
+        if(!items.length) return
+
+        const itemsCopy = [...items]
+
+        itemsCopy.reverse().forEach(x => {
+          html += getItem(x);
+        })
+
+        elItemsWrapper.innerHTML = html;
+      }
+
+      function getItem(data) {
+        
+        if(!data?.id) return "";
+
+        return `
+        <div class="col-xl-3 col-md-4 col-sm-6 col-xs-12 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">${data.title}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">${data.salary}, ${data.location}, ${data.company}</h6>
+              <h6 class="card-subtitle mb-2 text-muted">Experience: ${data.experience}</h6>
+              <p class="card-text">${data.description}</p>
+            </div>
+          </div>
+        </div>
+        `
+      }
     </script>
   </body>
 </html>

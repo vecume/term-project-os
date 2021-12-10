@@ -18,7 +18,7 @@ function createWindow() {
 }
 
 ipcMain.on("job:getAll", (e, data) => {
-  connection("read_jobs", JSON.stringify(data), (res,err) => {
+  connection("read_jobs", data, (res,err) => {
     if(err) {
       dialog.showErrorBox("Error", err.toString())
     } else {
@@ -28,7 +28,7 @@ ipcMain.on("job:getAll", (e, data) => {
 })
 
 ipcMain.on("job:create", (e, data) => {
-  connection("create_job", JSON.stringify(data), (res, err) => {
+  connection("create_job", data, (res, err) => {
     if(err) {
       dialog.showErrorBox("Error", err.toString())
     } else {
